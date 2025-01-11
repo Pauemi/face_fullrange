@@ -96,6 +96,18 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: _imageBytes == null
+              ? const Text(
+                "Selecciona una imagen para comenzar",
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                )
+              : Text(
+                'Número de rostros detectados: ${_detections.length}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+          ),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -104,25 +116,28 @@ class _HomePageState extends State<HomePage> {
                     aspectRatio: _imageSize?.aspectRatio ?? 1,
                     child: Container(
                       width: double.infinity,
-                      child: Stack(
-                        fit: StackFit.expand,
-                        children: [
-                          if (_imageBytes != null)
-                            Image.memory(
-                              _imageBytes!,
-                              fit: BoxFit.contain,
-                            ),
-                          if (_image != null)
-                            CustomPaint(
-                              size: Size.infinite,
-                              painter: FaceDetectionPainter(
-                                image: _image!,
-                                detections: _detections,
-                                originalSize: _imageSize!,
+                      child: _imageBytes == null
+                        ? const Center(
+                            child: Icon(Icons.image, size: 200, color: Colors.grey)
+                          )
+                        : Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.memory(
+                                _imageBytes!,
+                                fit: BoxFit.contain,
                               ),
-                            ),
-                        ],
-                      ),
+                              if (_image != null)
+                                CustomPaint(
+                                  size: Size.infinite,
+                                  painter: FaceDetectionPainter(
+                                    image: _image!,
+                                    detections: _detections,
+                                    originalSize: _imageSize!,
+                                  ),
+                                ),
+                            ],
+                          ),
                     ),
                   ),
                 ],
