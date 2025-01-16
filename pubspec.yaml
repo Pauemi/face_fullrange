@@ -38,9 +38,12 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   carousel_slider: ^5.0.0
+  path_provider: ^2.1.5
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  test: ^1.22.0
+  path: ^1.9.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -62,8 +65,77 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - assets/carousel/facial_detection_image.webp
+    - assets/carousel/machinelearning.webp
+    - assets/carousel/ml.png
+    - assets/carousel/mlkit.jpg
+    - assets/carousel/tensorflow.jpeg
+    - assets/models/
+    - assets/
+    - assets/wider_face_val_bbx_gt.txt
     - assets/images/
-    - assets/models/face_detection_full_range.tflite
+    - assets/images/0--Parade/
+    - assets/images/1--Handshaking/
+    - assets/images/2--Demonstration/
+    - assets/images/3--Riot/
+    - assets/images/4--Dancing/
+    - assets/images/5--Car_Accident/
+    - assets/images/6--Funeral/
+    - assets/images/7--Cheering/
+    - assets/images/8--Election_Campain/
+    - assets/images/9--Press_Conference/
+    - assets/images/10--People_Marching/
+    - assets/images/11--Meeting/
+    - assets/images/12--Group/
+    - assets/images/13--Interview/
+    - assets/images/14--Traffic/
+    - assets/images/15--Stock_Market/
+    - assets/images/16--Award_Ceremony/
+    - assets/images/17--Ceremony/
+    - assets/images/18--Concerts/
+    - assets/images/19--Couple/
+    - assets/images/20--Family_Group/
+    - assets/images/21--Festival/
+    - assets/images/22--Picnic/
+    - assets/images/23--Shoppers/
+    - assets/images/24--Soldier_Firing/
+    - assets/images/25--Soldier_Patrol/
+    - assets/images/26--Soldier_Drilling/
+    - assets/images/27--Spa/
+    - assets/images/28--Sports_Fan/
+    - assets/images/29--Students_Schoolkids/
+    - assets/images/30--Surgeons/
+    - assets/images/31--Waiter_Waitress/
+    - assets/images/32--Worker_Laborer/
+    - assets/images/33--Running/
+    - assets/images/34--Baseball/
+    - assets/images/35--Basketball/
+    - assets/images/36--Football/
+    - assets/images/37--Soccer/
+    - assets/images/38--Tennis/
+    - assets/images/39--Ice_Skating/
+    - assets/images/40--Gymnastics/
+    - assets/images/41--Swimming/
+    - assets/images/42--Car_Racing/
+    - assets/images/43--Row_Boat/
+    - assets/images/44--Aerobics/
+    - assets/images/45--Balloonist/
+    - assets/images/46--Jockey/
+    - assets/images/47--Matador_Bullfighter/
+    - assets/images/48--Parachutist_Paratrooper/
+    - assets/images/49--Greeting/
+    - assets/images/50--Celebration_Or_Party/
+    - assets/images/51--Dresses/
+    - assets/images/52--Photographers/
+    - assets/images/53--Raid/
+    - assets/images/54--Rescue/
+    - assets/images/55--Sports_Coach_Trainer/
+    - assets/images/56--Voter/
+    - assets/images/57--Angler/
+    - assets/images/58--Hockey/
+    - assets/images/59--people--driving--car/
+    - assets/images/61--Street_Battle/
+    - assets/results/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

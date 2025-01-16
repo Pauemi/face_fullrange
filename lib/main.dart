@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-import 'homepage.dart'; // Contiene el código de detección facial
+import 'evaluation/face_detection_test.dart';
+import 'homepage.dart';
 import 'utils/global_key.dart';
 
 void main() {
@@ -35,17 +40,17 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final List<Map<String, String>> slides = const [
     {
-      'image': 'assets/images/facial_detection_image.webp',
+      'image': 'assets/carousel/facial_detection_image.webp',
       'title': 'Reconocimiento Facial',
       'text': 'Implementación de la solución de detección facial',
     },
     {
-      'image': 'assets/images/machinelearning.webp',
+      'image': 'assets/carousel/machinelearning.webp',
       'title': 'Aprendizaje Automático',
       'text': 'Prototipo de implementación de ML en dispositivos móviles',
     },
     {
-      'image': 'assets/images/mlkit.jpg',
+      'image': 'assets/carousel/mlkit.jpg',
       'title': 'Google ML Kit',
       'text': 'Implementación del kit de aprendizaje automático de Google',
     },
@@ -54,6 +59,49 @@ class _MainScreenState extends State<MainScreen> {
   final CarouselSliderController _controller = CarouselSliderController();
 
   int _currentIndex = 0;
+
+  Future<String> _getResultsDirectory() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final resultsDir = Directory('${directory.path}/results');
+    if (!await resultsDir.exists()) {
+      await resultsDir.create(recursive: true);
+    }
+    return resultsDir.path;
+  }
+
+  Future<void> requestStoragePermission() async {
+    print('📱 Solicitando permisos de almacenamiento...');
+
+    if (Platform.isAndroid) {
+      if (await Permission.manageExternalStorage.isGranted) {
+        print('✅ Permiso de gestión de almacenamiento ya otorgado.');
+        return;
+      }
+
+      var status = await Permission.manageExternalStorage.status;
+      print('   Estado inicial: $status');
+
+      if (!status.isGranted) {
+        status = await Permission.manageExternalStorage.request();
+        print('   Estado después de solicitud: $status');
+
+        if (!status.isGranted) {
+          throw Exception('❌ Se requiere permiso de gestión de almacenamiento.');
+        }
+      }
+
+      print('✅ Permiso de gestión de almacenamiento otorgado.');
+    } else if (Platform.isIOS) {
+      // Manejar permisos para iOS si es necesario
+      var status = await Permission.photos.status;
+      if (!status.isGranted) {
+        status = await Permission.photos.request();
+        if (!status.isGranted) {
+          throw Exception('❌ Se requiere permiso de fotos.');
+        }
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,34 +201,75 @@ class _MainScreenState extends State<MainScreen> {
               }).toList(),
             ),
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          const HomePage()), // Redirige a la detección facial
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.lightGreen,
-                foregroundColor: Colors.white,
-                textStyle: const TextStyle(
-                  fontWeight: FontWeight.w600,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const HomePage(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.lightGreen,
+                    foregroundColor: Colors.white,
+                    textStyle: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    shadowColor: Colors.black.withOpacity(0.5),
+                    elevation: 5,
+                  ),
+                  child: const Text(
+                    'Ingresar',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final tester = FaceDetectorTest(
+                        datasetPath: 'assets/images/',
+                        annotationsPath: 'assets/wider_face_val_bbx_gt.txt',
+                        outputPath: await _getResultsDirectory(),
+                      );
+                      await tester.init();
+                      await tester.runTest();
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error en prueba: $e')),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    textStyle: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    shadowColor: Colors.black.withOpacity(0.5),
+                    elevation: 5,
+                  ),
+                  child: const Text(
+                    'Ejecutar Prueba',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
-                shadowColor: Colors.black.withOpacity(0.5),
-                elevation: 5,
-              ),
-              child: const Text(
-                'Ingresar',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
+              ],
             ),
           ],
         ),
