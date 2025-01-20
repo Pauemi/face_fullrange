@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'anchors.dart';
 import 'detection.dart';
 import 'nms.dart';
+import 'utilities.dart';
 
 /// Decodifica la salida cruda del modelo (boxes, scores) en detecciones.
 List<Detection> decodeFullRange({
@@ -10,7 +11,7 @@ List<Detection> decodeFullRange({
   required List<List<List<double>>> scoresRaw,
   required List<Anchor> anchors,
   double scoreThreshold = MIN_SCORE_THRESH,
-  double iouThreshold = 0.3,
+  double iouThreshold = 0.5,
 }) {
   final detections = <Detection>[];
   
@@ -24,18 +25,18 @@ List<Detection> decodeFullRange({
     if (score < scoreThreshold) continue;
 
     // Extraer coordenadas usando las escalas correctas del modelo
-    final dy = boxesRaw[0][i][0] / Y_SCALE;
-    final dx = boxesRaw[0][i][1] / X_SCALE;
-    final dh = boxesRaw[0][i][2] / H_SCALE;
-    final dw = boxesRaw[0][i][3] / W_SCALE;
+    final dx = boxesRaw[0][i][0] / Y_SCALE;
+    final dy = boxesRaw[0][i][1] / X_SCALE;
+    final dw = boxesRaw[0][i][2] / H_SCALE;
+    final dh = boxesRaw[0][i][3] / W_SCALE;
     
     final anchor = anchors[i];
 
     // Decodificar usando las anclas
-    final yCenter = dy * anchor.h + anchor.yCenter;
-    final xCenter = dx * anchor.w + anchor.xCenter;
-    final h = dh * anchor.h;
+    final yCenter = dx * anchor.w + anchor.yCenter;
+    final xCenter = dy * anchor.h + anchor.xCenter;
     final w = dw * anchor.w;
+    final h = dh * anchor.h;
 
     // Convertir a coordenadas de esquina
     final xMin = xCenter - w / 2;
@@ -45,7 +46,7 @@ List<Detection> decodeFullRange({
     if (xMin < 0 || yMin < 0 || xMin + w > 1 || yMin + h > 1) continue;
 
     detections.add(Detection(
-      score: score,
+      score: sigmoid(scoresRaw[0][i][0]),
       xMin: xMin,
       yMin: yMin,
       width: w,

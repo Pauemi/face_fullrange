@@ -1,18 +1,20 @@
+// lib/services/face_detector.dart
+
+import 'dart:math' as math;
 import 'dart:typed_data';
 
-// Paquete para decodificar la imagen a nivel de Dart
 import 'package:facedetection_blazefull/ml/anchors.dart';
 import 'package:image/image.dart' as img;
-// Paquete tflite_flutter para cargar e invocar el modelo
 import 'package:tflite_flutter/tflite_flutter.dart';
 
-// Estos archivos asume que existen en tu proyecto
 import '../ml/detection.dart';
 import '../ml/post_process.dart';
+import '../ml/utilities.dart'; // Importa las utilidades
 
 const int MODEL_INPUT_SIZE = 192;
 const int NUM_BOXES = 2304;
-const double MIN_SCORE_THRESH = 0.6;
+const double MIN_SCORE_THRESH = 0.5; // Ajustado
+const double MIN_SUPPRESSION_THRESHOLD = 0.5; // Ajustado
 
 /// Servicio que se encarga de cargar el modelo face_detection_full_range.tflite
 /// y ejecutar el post-procesado (anchors, decodificación, NMS).
@@ -27,8 +29,9 @@ class FaceDetectorService {
   Future<void> init() async {
     try {
       print('🔄 Iniciando FaceDetectorService');
-      _interpreter = await Interpreter.fromAsset('assets/models/face_detection_full_range.tflite');
-      
+      _interpreter =
+          await Interpreter.fromAsset('assets/models/face_detection_full_range.tflite');
+
       // Usar las opciones definidas en anchors.dart
       final anchorOpts = getFullRangeOptions();
       _anchors = generateSSDAnchors(anchorOpts);
@@ -60,12 +63,11 @@ class FaceDetectorService {
       return [];
     }
 
-    // 2) Redimensionar a 192x192
-    final resized = img.copyResize(
-      decodedImage,
-      width: 192,
-      height: 192,
-    );
+    // 2) Redimensionar con letterboxing a 192x192
+    final Tuple3<img.Image, int, int> resizedTuple = resizeWithLetterboxing(decodedImage, 192, 192);
+    img.Image resizedImage = resizedTuple.item1;
+    int padX = resizedTuple.item2;
+    int padY = resizedTuple.item3;
 
     // 3) Crear el tensor 4D de entrada: [1,192,192,3]
     //    con normalización en [-1..1]
@@ -83,7 +85,7 @@ class FaceDetectorService {
     for (int h = 0; h < 192; h++) {
       for (int w = 0; w < 192; w++) {
         // Obtén el pixel
-        final pixel = resized.getPixel(w, h);
+        final pixel = resizedImage.getPixel(w, h);
         // El pixel es un int ARGB en package:image
         // Extraer canales:
         final r = pixel.r;
@@ -114,15 +116,52 @@ class FaceDetectorService {
     // Ejecutar inferencia
     _interpreter!.runForMultipleInputs([input4D], outputs);
 
+    // Logs de salidas crudas
+    print('🔍 Salidas crudas - Boxes: ${outputArray1[0].length}, Scores: ${outputArray2[0].length}');
+    if (outputArray1[0].isNotEmpty && outputArray1[0][0].isNotEmpty) {
+      print('📦 Ejemplo de Box Raw: ${outputArray1[0][0].sublist(0, 4)}');
+    }
+    if (outputArray2[0].isNotEmpty && outputArray2[0][0].isNotEmpty) {
+      print('📈 Ejemplo de Score Raw: ${outputArray2[0][0][0]}');
+    }
+
     // Post-procesar con los parámetros del modelo
     final detections = decodeFullRange(
       boxesRaw: outputArray1,
       scoresRaw: outputArray2,
       anchors: _anchors!,
       scoreThreshold: MIN_SCORE_THRESH,
-      iouThreshold: 0.3,
+      iouThreshold: MIN_SUPPRESSION_THRESHOLD,
     );
 
-    return detections;
+    // Ajustar las detecciones para remover el letterbox usando padX y padY
+    final adjustedDetections = detections.map((detection) {
+      // Calcula la escala basado en letterboxing
+      double scale = math.min(192 / decodedImage.width, 192 / decodedImage.height);
+      double scaledWidth = decodedImage.width * scale;
+      double scaledHeight = decodedImage.height * scale;
+
+      // Remover el padding aplicado por letterboxing
+      double xMin = (detection.xMin * 192 - padX) / scaledWidth;
+      double yMin = (detection.yMin * 192 - padY) / scaledHeight;
+      double width = detection.width * 192 / scaledWidth;
+      double height = detection.height * 192 / scaledHeight;
+
+      // Asegurarse de que las coordenadas estén en el rango [0,1]
+      xMin = xMin.clamp(0.0, 1.0);
+      yMin = yMin.clamp(0.0, 1.0);
+      width = width.clamp(0.0, 1.0 - xMin);
+      height = height.clamp(0.0, 1.0 - yMin);
+
+      return Detection(
+        score: detection.score,
+        xMin: xMin,
+        yMin: yMin,
+        width: width,
+        height: height,
+      );
+    }).toList();
+
+    return adjustedDetections;
   }
 }

@@ -1,3 +1,5 @@
+// lib/homepage.dart
+
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -101,7 +103,7 @@ class _HomePageState extends State<HomePage> {
             child: _imageBytes == null
               ? const Text(
                 "Selecciona una imagen para comenzar",
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 )
               : Text(
                 'Número de rostros detectados: ${_detections.length}',
@@ -127,7 +129,7 @@ class _HomePageState extends State<HomePage> {
                                 _imageBytes!,
                                 fit: BoxFit.contain,
                               ),
-                              if (_image != null)
+                              if (_image != null && _detections.isNotEmpty)
                                 CustomPaint(
                                   size: Size.infinite,
                                   painter: FaceDetectionPainter(

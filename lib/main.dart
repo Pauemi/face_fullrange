@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:facedetection_blazefull/evaluation/face_detection_evaluator.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'evaluation/face_detection_test.dart';
 import 'homepage.dart';
 import 'utils/global_key.dart';
 
@@ -59,14 +60,14 @@ class _MainScreenState extends State<MainScreen> {
   final CarouselSliderController _controller = CarouselSliderController();
 
   int _currentIndex = 0;
+  double _progress = 0.0; // Nueva variable para el progreso
+
 
   Future<String> _getResultsDirectory() async {
     final directory = await getApplicationDocumentsDirectory();
-    final resultsDir = Directory('${directory.path}/results');
-    if (!await resultsDir.exists()) {
-      await resultsDir.create(recursive: true);
-    }
-    return resultsDir.path;
+    final resultsPath = path.join(directory.path, 'test_results');
+    await Directory(resultsPath).create(recursive: true);
+    return resultsPath;
   }
 
   Future<void> requestStoragePermission() async {
@@ -236,14 +237,58 @@ class _MainScreenState extends State<MainScreen> {
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      final tester = FaceDetectorTest(
+                      await requestStoragePermission();
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error en permisos: $e')),
+                      );
+                      return;
+                    }
+                     // Mostrar diálogo de progreso
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Ejecutando Evaluación...'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            LinearProgressIndicator(
+                              value: _progress,
+                            ),
+                            const SizedBox(height: 20),
+                            const Text('Procesando imágenes...'),
+                          ],
+                        ),
+                      ),
+                    );
+                    try {
+                      final evaluator = FaceDetectionEvaluator(
                         datasetPath: 'assets/images/',
                         annotationsPath: 'assets/wider_face_val_bbx_gt.txt',
                         outputPath: await _getResultsDirectory(),
                       );
-                      await tester.init();
-                      await tester.runTest();
+                      await evaluator.init();
+                      await evaluator.runEvaluation(
+                        (progressMessage) {
+                          // Manejar progreso, por ejemplo, actualizar una variable de estado
+                          setState(() {
+                            _progress += 1 / evaluator.totalImages;
+                            if (_progress > 1.0) _progress = 1.0;
+                          });
+                          print('📈 Progreso: $progressMessage');
+                        },
+                        (completionMessage) {
+                          // Cerrar el diálogo de progreso y mostrar SnackBar
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(completionMessage)),
+                          );
+                        },
+                      );
                     } catch (e) {
+                      // Cerrar el diálogo de progreso en caso de error
+                      Navigator.of(context).pop();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Error en prueba: $e')),
                       );

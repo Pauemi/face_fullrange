@@ -1,4 +1,5 @@
-import 'dart:math' as math;
+// lib/widgets/face_detection_painter.dart
+
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -18,57 +19,33 @@ class FaceDetectionPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    print('🎨 Iniciando pintado de ${detections.length} detecciones');
-    
-    final originalWidth = originalSize.width;
-    final originalHeight = originalSize.height;
+    // Escalar factores
+    double scaleX = size.width / originalSize.width;
+    double scaleY = size.height / originalSize.height;
 
-    final scale = math.min(
-      size.width / originalWidth,
-      size.height / originalHeight
-    );
-    final offsetX = (size.width - originalWidth * scale) / 2;
-    final offsetY = (size.height - originalHeight * scale) / 2;
-
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
+    // Dibujar cajas de detección
+    final boxPaint = Paint()
+      ..color = Colors.red
       ..strokeWidth = 2.0
-      ..color = Colors.red;
+      ..style = PaintingStyle.stroke;
 
-    for (final det in detections) {
-      final rect = Rect.fromLTWH(
-        det.xMin * originalWidth * scale + offsetX,
-        det.yMin * originalHeight * scale + offsetY,
-        det.width * originalWidth * scale,
-        det.height * originalHeight * scale,
-      );
-      canvas.drawRect(rect, paint);
-      
-      // Opcional: dibujar el score
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: '${(det.score * 100).toStringAsFixed(0)}%',
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: 16,
-            backgroundColor: Colors.white,
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      
-      textPainter.paint(canvas, 
-        Offset(rect.left, rect.top - 20)
-      );
+    for (var detection in detections) {
+      // Ajustar las coordenadas
+      double left = detection.xMin * originalSize.width * scaleX;
+      double top = detection.yMin * originalSize.height * scaleY;
+      double width = detection.width * originalSize.width * scaleX;
+      double height = detection.height * originalSize.height * scaleY;
+
+      // Crear rectángulo de la detección
+      Rect rect = Rect.fromLTWH(left, top, width, height);
+      canvas.drawRect(rect, boxPaint);
     }
-    
-    print('✅ Pintado completado');
   }
 
   @override
   bool shouldRepaint(covariant FaceDetectionPainter oldDelegate) {
-    return oldDelegate.image != image || 
-           oldDelegate.detections.length != detections.length ||
-           oldDelegate.originalSize != originalSize;
+    return image != oldDelegate.image ||
+        detections != oldDelegate.detections ||
+        originalSize != oldDelegate.originalSize;
   }
 }
