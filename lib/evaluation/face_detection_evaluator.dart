@@ -157,7 +157,7 @@ class FaceDetectionEvaluator {
       print('\n📸 Evaluando imagen: $imagePath');
 
       // Construir la ruta del asset
-      final assetPath = '$_datasetPath/$imagePath';
+      final assetPath = '$_datasetPath$imagePath';
       print('   📂 Cargando imagen desde asset: $assetPath');
 
       try {
