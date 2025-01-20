@@ -52,52 +52,26 @@ class FaceDetectorService {
   ///
   /// Retorna una lista de [Detection] con coordenadas normalizadas [0..1].
   Future<List<Detection>> detectFaces(Uint8List imageBytes) async {
-    if (!_initialized || _interpreter == null || _anchors == null) {
-      throw Exception('FaceDetectorService no está inicializado');
-    }
+    if (!_initialized) throw Exception('Not initialized');
 
-    // 1) Decodificar la imagen en memoria
+    // 1. Decode image with proper orientation
     final decodedImage = img.decodeImage(imageBytes);
-    if (decodedImage == null) {
-      // Si no se pudo decodificar como imagen
-      return [];
-    }
+    if (decodedImage == null) return [];
 
-    // 2) Redimensionar con letterboxing a 192x192
-    final Tuple3<img.Image, int, int> resizedTuple = resizeWithLetterboxing(decodedImage, 192, 192);
-    img.Image resizedImage = resizedTuple.item1;
-    int padX = resizedTuple.item2;
-    int padY = resizedTuple.item3;
+    // 2. No need for color space conversion as decodeImage already returns RGB
+    final rgbImage = decodedImage;
+    
+    // 3. Apply image enhancement
+    final enhancedImage = _enhanceImage(rgbImage);
+    
+    // 4. Resize with proper aspect ratio preservation
+    final resizedTuple = resizeWithLetterboxing(enhancedImage, 192, 192);
+    final resizedImage = resizedTuple.item1;
+    final padX = resizedTuple.item2;
+    final padY = resizedTuple.item3;
 
-    // 3) Crear el tensor 4D de entrada: [1,192,192,3]
-    //    con normalización en [-1..1]
-    final input4D = List.generate(
-      1,
-      (_) => List.generate(
-        192,
-        (_) => List.generate(
-          192,
-          (_) => List<double>.filled(3, 0.0),
-        ),
-      ),
-    );
-
-    for (int h = 0; h < 192; h++) {
-      for (int w = 0; w < 192; w++) {
-        // Obtén el pixel
-        final pixel = resizedImage.getPixel(w, h);
-        // El pixel es un int ARGB en package:image
-        // Extraer canales:
-        final r = pixel.r;
-        final g = pixel.g; 
-        final b = pixel.b;
-
-        // Normalizar en [-1..1]
-        input4D[0][h][w][0] = (r / 127.5) - 1.0;
-        input4D[0][h][w][1] = (g / 127.5) - 1.0;
-        input4D[0][h][w][2] = (b / 127.5) - 1.0;
-      }
-    }
+    // 5. Normalize with proper scaling
+    final input4D = _prepareInputTensor(resizedImage);
 
     // Preparar buffers de salida con el número correcto de cajas
     var outputArray1 = List.generate(
@@ -163,5 +137,33 @@ class FaceDetectorService {
     }).toList();
 
     return adjustedDetections;
+  }
+
+  img.Image _enhanceImage(img.Image image) {
+    // Apply contrast enhancement
+    return img.adjustColor(
+      image,
+      contrast: 1.1,
+      brightness: 1.0,
+      saturation: 1.0,
+    );
+  }
+
+  List<List<List<List<double>>>> _prepareInputTensor(img.Image image) {
+    final input = List.generate(1, (_) => 
+      List.generate(192, (_) => 
+        List.generate(192, (_) => 
+          List<double>.filled(3, 0.0))));
+
+    for (int y = 0; y < 192; y++) {
+      for (int x = 0; x < 192; x++) {
+        final pixel = image.getPixel(x, y);
+        // Normalize to [-1,1] with proper scaling
+        input[0][y][x][0] = ((pixel.r - 127.5) / 127.5);
+        input[0][y][x][1] = ((pixel.g - 127.5) / 127.5);
+        input[0][y][x][2] = ((pixel.b - 127.5) / 127.5);
+      }
+    }
+    return input;
   }
 }

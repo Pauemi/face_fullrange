@@ -33,7 +33,8 @@ class AnchorOption {
 // Constantes según el modelo
 const double MODEL_INPUT_SIZE = 192.0;
 const int NUM_BOXES = 2304;  // 48x48 grid
-const double MIN_SCORE_THRESH = 0.5;
+const double MIN_SCORE_THRESH = 0.6;
+const double MIN_SUPPRESSION_THRESHOLD = 0.3; // Adjusted for better NMS
 const double X_SCALE = 192.0;
 const double Y_SCALE = 192.0;
 const double H_SCALE = 192.0;

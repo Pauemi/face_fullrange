@@ -46,6 +46,7 @@ class FaceDetectionEvaluator {
   int totalValid = 0;
   int totalInvalid = 0;
   int get totalImages => _annotations.length;
+  final List<String> _failedImages = [];
 
   FaceDetectionEvaluator({
     required String datasetPath,
@@ -251,6 +252,9 @@ class FaceDetectionEvaluator {
         // Intentar cargar como archivo local
         final file = File(path.join(_datasetPath, imagePath));
         if (await file.exists()) {
+          // Almacenar la imagen fallida para mostrarla después
+          _failedImages.add(imagePath);
+          _failedImages.add(imagePath);
           final bytes = await file.readAsBytes();
           print('   ✅ Imagen cargada desde archivo: ${bytes.length} bytes');
 
@@ -564,6 +568,13 @@ class FaceDetectionEvaluator {
       print(e);
       print(StackTrace.current);
       onComplete('Error durante la evaluación: $e');
+      // Show list of failed images if any
+      if (_failedImages.isNotEmpty) {
+        print('\n⚠️ Imágenes fallidas:');
+        for (final failedImage in _failedImages) {
+          print('   - $failedImage');
+        }
+      }
     }
   }
 
