@@ -6,6 +6,8 @@
 	<string>Necesitamos acceder a la cámara para detectar rostros.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Necesitamos acceder a la galería para seleccionar imágenes.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Necesitamos acceso al almacenamiento interno para guardar documentos.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
