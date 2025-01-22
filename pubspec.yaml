@@ -136,7 +136,6 @@ flutter:
     - assets/images/59--people--driving--car/
     - assets/images/60--No_Face/
     - assets/images/61--Street_Battle/
-    - assets/results/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
