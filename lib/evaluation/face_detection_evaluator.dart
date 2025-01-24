@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'package:permission_handler/permission_handler.dart';
 
 // Importa tu servicio de detección facial
 import 'package:facedetection_blazefull/services/face_detector.dart';
@@ -48,17 +49,77 @@ class FaceDetectionEvaluator {
   int get totalImages => _annotations.length;
   final List<String> _failedImages = [];
 
+  // Add CSV headers
+  final List<String> csvHeaders = [
+    'Image',
+    'True_Positives',
+    'False_Positives',
+    'False_Negatives',
+    'True_Negatives',
+    'Precision',
+    'Recall',
+    'F1_Score',
+    'Processing_Time_Ms'
+  ];
+
+  final Map<String, ImageMetrics> _results = {};
+
   FaceDetectionEvaluator({
+    required FaceDetectorService detector,
     required String datasetPath,
     required String annotationsPath,
     required String outputPath,
-  })  : _datasetPath = datasetPath,
+  })  : _detector = detector,
+        _datasetPath = datasetPath,
         _annotationsPath = annotationsPath,
-        _outputPath = outputPath,
-        _detector = FaceDetectorService();
+        _outputPath = outputPath;
+
+Future<bool> _checkPermissions() async {
+    try {
+      if (Platform.isIOS) {
+        final photosStatus = await Permission.photos.status;
+        final storageStatus = await Permission.storage.status;
+
+        if (photosStatus.isDenied) {
+          final result = await Permission.photos.request();
+          if (!result.isGranted) {
+            print('❌ Acceso a fotos denegado');
+            return false;
+          }
+        }
+
+        if (storageStatus.isDenied) {
+          final result = await Permission.storage.request();
+          if (!result.isGranted) {
+            print('❌ Acceso a almacenamiento denegado');
+            return false;
+          }
+        }
+      } else if (Platform.isAndroid) {
+        final storageStatus = await Permission.storage.status;
+        if (storageStatus.isDenied) {
+          final result = await Permission.storage.request();
+          if (!result.isGranted) {
+            print('❌ Acceso a almacenamiento denegado');
+            return false;
+          }
+        }
+      }
+      
+      print('✅ Permisos concedidos');
+      return true;
+    } catch (e) {
+      print('❌ Error al verificar permisos: $e');
+      return false;
+    }
+  }
 
   /// Inicializa el servicio y carga las anotaciones
   Future<void> init() async {
+    print("Solicitando permisos necesarios");
+    if (!await _checkPermissions()) {
+      throw Exception('Permisos necesarios no concedidos');
+    }
     print('🚀 Iniciando evaluador de detección facial...');
     print('📁 Rutas configuradas:');
     print('   - Dataset: $_datasetPath');
@@ -720,4 +781,57 @@ class FaceDetectionEvaluator {
 
     print('💾 Resultados guardados en: ${outputFile.path}');
   }
+
+  Future<void> saveResults() async {
+    final File csvFile = File(path.join(_outputPath, 'evaluation_results.csv'));
+    final IOSink sink = csvFile.openWrite();
+    
+    // Write headers
+    sink.writeln(csvHeaders.join(','));
+    
+    // Write data rows
+    for (var entry in _results.entries) {
+      final metrics = entry.value;
+      final row = [
+        entry.key,                    // Image name
+        metrics.truePositives,        // TP
+        metrics.falsePositives,       // FP
+        metrics.falseNegatives,       // FN
+        metrics.trueNegatives,        // TN
+        metrics.precision.toStringAsFixed(4),    // Precision
+        metrics.recall.toStringAsFixed(4),       // Recall
+        metrics.f1Score.toStringAsFixed(4),      // F1
+        metrics.processingTime.toStringAsFixed(2) // Time
+      ];
+      
+      sink.writeln(row.join(','));
+    }
+    
+    await sink.flush();
+    await sink.close();
+  }
+
+}
+
+// Add class to store metrics
+class ImageMetrics {
+  final int truePositives;
+  final int falsePositives;
+  final int falseNegatives;
+  final int trueNegatives;
+  final double precision;
+  final double recall;
+  final double f1Score;
+  final double processingTime;
+
+  ImageMetrics({
+    required this.truePositives,
+    required this.falsePositives,
+    required this.falseNegatives,
+    required this.trueNegatives,
+    required this.precision,
+    required this.recall,
+    required this.f1Score,
+    required this.processingTime,
+  });
 }

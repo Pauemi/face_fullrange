@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'homepage.dart';
+import 'services/face_detector.dart';
 import 'utils/global_key.dart';
 
 void main() {
@@ -71,38 +72,60 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> requestStoragePermission() async {
-    print('📱 Solicitando permisos de almacenamiento...');
+  try {
+    print('🔍 Debug: Iniciando verificación de permisos');
+    print('📱 Platform: ${Platform.operatingSystem} (${Platform.operatingSystemVersion})');
 
     if (Platform.isAndroid) {
-      if (await Permission.manageExternalStorage.isGranted) {
-        print('✅ Permiso de gestión de almacenamiento ya otorgado.');
-        return;
+      print('🤖 Debug: Procesando permisos Android...');
+      var storageStatus = await Permission.storage.status;
+      print('📂 Storage Status inicial: $storageStatus');
+      
+      var manageStorageStatus = await Permission.manageExternalStorage.status;
+      print('📂 Manage Storage Status inicial: $manageStorageStatus');
+      
+      if (!storageStatus.isGranted) {
+        print('⏳ Solicitando permiso storage...');
+        storageStatus = await Permission.storage.request();
+        print('📋 Nuevo storage status: $storageStatus');
       }
-
-      var status = await Permission.manageExternalStorage.status;
-      print('   Estado inicial: $status');
-
-      if (!status.isGranted) {
-        status = await Permission.manageExternalStorage.request();
-        print('   Estado después de solicitud: $status');
-
-        if (!status.isGranted) {
-          throw Exception('❌ Se requiere permiso de gestión de almacenamiento.');
-        }
+      
+      if (!manageStorageStatus.isGranted) {
+        print('⏳ Solicitando permiso manage storage...');
+        manageStorageStatus = await Permission.manageExternalStorage.request();
+        print('📋 Nuevo manage storage status: $manageStorageStatus');
       }
-
-      print('✅ Permiso de gestión de almacenamiento otorgado.');
+      
     } else if (Platform.isIOS) {
-      // Manejar permisos para iOS si es necesario
-      var status = await Permission.photos.status;
-      if (!status.isGranted) {
-        status = await Permission.photos.request();
-        if (!status.isGranted) {
-          throw Exception('❌ Se requiere permiso de fotos.');
-        }
+      print('🍎 Debug: Procesando permisos iOS...');
+      
+      var photosStatus = await Permission.photos.status;
+      print('📸 Photos Status inicial: $photosStatus');
+      
+      var documentsStatus = await Permission.storage.status;
+      print('📑 Documents Status inicial: $documentsStatus');
+      
+      if (!photosStatus.isGranted) {
+        print('⏳ Solicitando permiso fotos...');
+        photosStatus = await Permission.photos.request();
+        print('📋 Nuevo photos status: $photosStatus');
+      }
+      
+      if (!documentsStatus.isGranted) {
+        print('⏳ Solicitando permiso documentos...');
+        documentsStatus = await Permission.storage.request();
+        print('📋 Nuevo documents status: $documentsStatus');
       }
     }
+    
+    print('✅ Proceso de permisos completado exitosamente');
+  } catch (e, stackTrace) {
+    print('❌ Error en requestStoragePermission:');
+    print('   Error: $e');
+    print('   Stack trace: $stackTrace');
+    throw Exception('Error al solicitar permisos: $e');
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -263,12 +286,23 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     );
                     try {
+                      final FaceDetectorService detector = FaceDetectorService();
                       final evaluator = FaceDetectionEvaluator(
+                        detector: detector,
                         datasetPath: 'assets/images/',
                         annotationsPath: 'assets/wider_face_val_bbx_gt.txt',
                         outputPath: await _getResultsDirectory(),
                       );
-                      await evaluator.init();
+                      try {
+                        await evaluator.init();
+                      } catch (e) {
+                        print('❌ Error en evaluación: $e');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error en evaluación: $e')),
+                        );
+                        return;
+                      }
+                      
                       await evaluator.runEvaluation(
                         (progressMessage) {
                           // Manejar progreso, por ejemplo, actualizar una variable de estado
