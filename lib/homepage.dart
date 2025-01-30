@@ -93,8 +93,8 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detección de Rostros'),
-        backgroundColor: Colors.green,
+        title: const Text('Detección de Rostros con TensorFlow Lite'),
+        backgroundColor: Colors.deepOrange[600],
       ),
       body: Column(
         children: [

@@ -321,10 +321,8 @@ class FaceDetectionEvaluator {
         'true_positives': 0,
         'false_positives': 0,
         'false_negatives': 0,
-        'true_negatives': 0,
         'precision': 0.0,
         'recall': 0.0,
-        'specificity': 0.0,
         'f1_score': 0.0,
         'ious': [],
         'average_iou': 0.0,
@@ -364,15 +362,9 @@ class FaceDetectionEvaluator {
     // Las ground truth que quedaron sin matchear son falsos negativos
     final fn = matchedGT.where((m) => !m).length;
 
-    // Para object detection, típicamente TN se omite o se define distinto;
-    // aquí lo dejaremos en 0 para cada imagen.
-    int tn = 0;
-
     // Cálculo de métricas clásicas
     final precision = (tp + fp) > 0 ? tp / (tp + fp) : 0.0;
     final recall = (tp + fn) > 0 ? tp / (tp + fn) : 0.0;
-    // specificity = TN / (TN + FP); en detection no siempre hace sentido
-    final specificity = (tn + fp) > 0 ? tn / (tn + fp) : 0.0;
     final f1 = (precision + recall) > 0 ? 2 * (precision * recall) / (precision + recall) : 0.0;
 
     final avgIoU = iouList.isNotEmpty
@@ -383,10 +375,8 @@ class FaceDetectionEvaluator {
       'true_positives': tp,
       'false_positives': fp,
       'false_negatives': fn,
-      'true_negatives': tn,
       'precision': precision,
       'recall': recall,
-      'specificity': specificity,
       'f1_score': f1,
       'ious': iouList,
       'average_iou': avgIoU,
@@ -463,6 +453,13 @@ class FaceDetectionEvaluator {
     print('- Imágenes válidas: $totalValid');
     print('- Imágenes inválidas: $totalInvalid');
 
+    // Listar imágenes fallidas
+    if (_failedImages.isNotEmpty) {
+      print('\n❌ Imágenes fallidas:');
+      for (final failPath in _failedImages) {
+        print(' - $failPath');
+      }
+    }
     try {
       // Crear directorio de salida si no existe
     final outputDir = Directory(_outputPath);
@@ -505,10 +502,8 @@ class FaceDetectionEvaluator {
       'true_pos',
       'false_pos',
       'false_neg',
-      'true_neg',
       'precision',
       'recall',
-      'specificity',
       'f1_score',
       'processing_time_ms'
     ]);
@@ -528,10 +523,8 @@ class FaceDetectionEvaluator {
           metrics['true_positives'],
           metrics['false_positives'],
           metrics['false_negatives'],
-          metrics['true_negatives'],
           (metrics['precision'] as double).toStringAsFixed(3),
           (metrics['recall'] as double).toStringAsFixed(3),
-          (metrics['specificity'] as double).toStringAsFixed(3),
           (metrics['f1_score'] as double).toStringAsFixed(3),
           result['processing_time_ms'] ?? 0
         ]);
@@ -545,10 +538,8 @@ class FaceDetectionEvaluator {
           0, // TP
           0, // FP
           0, // FN
-          0, // TN
           0.0, // precision
           0.0, // recall
-          0.0, // specificity
           0.0, // f1
           0 // tiempo
         ]);

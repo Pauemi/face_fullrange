@@ -131,9 +131,9 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green,
+        backgroundColor: Colors.deepOrange[600],
         title: const Text(
-          'Prototipo Multiplataforma',
+          'Prototipo TensorFlow Lite',
           style: TextStyle(
             fontSize: 26,
             color: Colors.white,
@@ -237,8 +237,8 @@ class _MainScreenState extends State<MainScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.lightGreen,
-                    foregroundColor: Colors.white,
+                    backgroundColor: Colors.yellow[800],
+                    foregroundColor: Colors.black,
                     textStyle: const TextStyle(
                       fontWeight: FontWeight.w600,
                     ),
@@ -336,7 +336,7 @@ class _MainScreenState extends State<MainScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blueGrey[800],
                     foregroundColor: Colors.white,
                     textStyle: const TextStyle(
                       fontWeight: FontWeight.w600,
