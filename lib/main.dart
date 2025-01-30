@@ -267,6 +267,9 @@ class _MainScreenState extends State<MainScreen> {
                       );
                       return;
                     }
+                    setState(() {
+                      _progress = 0.0;
+                    });
                      // Mostrar diálogo de progreso
                     showDialog(
                       context: context,
@@ -286,6 +289,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     );
                     try {
+                      // 4) Crear el detecyor y el evaluador
                       final FaceDetectorService detector = FaceDetectorService();
                       final evaluator = FaceDetectionEvaluator(
                         detector: detector,
@@ -293,6 +297,7 @@ class _MainScreenState extends State<MainScreen> {
                         annotationsPath: 'assets/wider_face_val_bbx_gt.txt',
                         outputPath: await _getResultsDirectory(),
                       );
+                      // 5) Inicializar y ejecutar la evaluación
                       try {
                         await evaluator.init();
                       } catch (e) {
@@ -300,14 +305,16 @@ class _MainScreenState extends State<MainScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text('Error en evaluación: $e')),
                         );
+                        // Cerrar el diálogo de progreso
+                        Navigator.of(context).pop();
                         return;
                       }
-                      
+                      // 6) Correr la evaluación con callbacks de progreso y de finalización
                       await evaluator.runEvaluation(
                         (progressMessage) {
                           // Manejar progreso, por ejemplo, actualizar una variable de estado
                           setState(() {
-                            _progress += 1 / evaluator.totalImages;
+                            _progress += 1 / evaluator.totalValid;
                             if (_progress > 1.0) _progress = 1.0;
                           });
                           print('📈 Progreso: $progressMessage');

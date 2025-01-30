@@ -1528,7 +1528,7 @@
 771 189 14 26 0 0 0 0 0 0
 320 72 13 23 0 0 0 0 0 0
 238 51 16 20 0 0 0 0 0 0
-10--People_Marching/10_People_Marching_People_Marching_10_People_Marching_People_Marching_10_People_Marching_People_Marching_10_1024.jpg
+10--People_Marching/10_People_Marching_People_Marching_10_People_Marching_People_Marching_10_People_Marching_People_Marching_10_1024.jpeg
 8
 577 1042 19 25 0 0 0 0 0 0
 207 1054 25 33 0 0 0 0 0 0
@@ -4025,7 +4025,7 @@
 16--Award_Ceremony/16_Award_Ceremony_Awards_Ceremony_16_482.jpg
 1
 425 171 270 364 0 0 0 0 0 0
-16--Award_Ceremony/16_Award_Ceremony_Awards_Ceremony_16_134.jpg
+16--Award_Ceremony/16_Award_Ceremony_Awards_Ceremony_16_134.jpeg
 1
 426 211 156 211 0 0 0 0 0 0
 16--Award_Ceremony/16_Award_Ceremony_Awards_Ceremony_16_512.jpg
@@ -4222,7 +4222,7 @@
 2
 471 427 12 16 1 0 0 0 0 0
 0 525 15 30 1 0 0 0 0 0
-17--Ceremony/17_Ceremony_Ceremony_17_1037.jpg
+17--Ceremony/17_Ceremony_Ceremony_17_1037.jpeg
 1
 461 180 199 242 0 0 0 0 0 0
 17--Ceremony/17_Ceremony_Ceremony_17_271.jpg
@@ -6955,7 +6955,7 @@
 2
 814 129 9 12 1 0 0 0 0 0
 903 129 12 14 1 0 0 0 0 0
-2--Demonstration/2_Demonstration_Political_Rally_2_746.jpg
+2--Demonstration/2_Demonstration_Political_Rally_2_746.jpeg
 13
 581 83 76 89 1 0 0 0 0 0
 586 369 64 73 1 0 0 0 0 0
@@ -8730,7 +8730,7 @@
 593 637 29 36 1 1 0 0 0 0
 197 561 26 36 1 0 0 0 0 0
 718 726 47 74 1 0 0 0 0 0
-28--Sports_Fan/28_Sports_Fan_Sports_Fan_28_1018.jpg
+28--Sports_Fan/28_Sports_Fan_Sports_Fan_28_1018.jpeg
 1
 380 194 251 275 1 0 0 0 0 0
 28--Sports_Fan/28_Sports_Fan_Sports_Fan_28_663.jpg
@@ -9608,7 +9608,7 @@
 32--Worker_Laborer/32_Worker_Laborer_Worker_Laborer_32_169.jpg
 1
 390 84 230 340 0 0 0 0 0 0
-32--Worker_Laborer/32_Worker_Laborer_Worker_Laborer_32_786.jpg
+32--Worker_Laborer/32_Worker_Laborer_Worker_Laborer_32_786.jpeg
 1
 477 522 167 233 0 0 0 0 0 0
 32--Worker_Laborer/32_Worker_Laborer_Worker_Laborer_32_468.jpg
@@ -11630,7 +11630,7 @@
 40--Gymnastics/40_Gymnastics_Gymnastics_40_566.jpg
 1
 464 156 58 84 0 0 0 0 0 0
-40--Gymnastics/40_Gymnastics_Gymnastics_40_805.jpg
+40--Gymnastics/40_Gymnastics_Gymnastics_40_805.jpeg
 1
 477 755 176 241 0 0 0 0 0 0
 41--Swimming/41_Swimming_Swimming_41_580.jpg
@@ -13113,7 +13113,7 @@
 212 221 32 37 1 1 0 0 0 0
 600 261 29 37 1 0 0 0 0 0
 998 261 26 38 1 0 0 0 0 0
-50--Celebration_Or_Party/50_Celebration_Or_Party_houseparty_50_303.jpg
+50--Celebration_Or_Party/50_Celebration_Or_Party_houseparty_50_303.jpeg
 3
 721 1510 75 101 1 0 0 0 0 0
 481 318 132 167 1 0 0 0 0 0
@@ -13257,7 +13257,7 @@
 693 275 22 29 1 0 0 0 0 0
 314 614 22 30 1 0 0 0 0 0
 402 604 24 30 1 0 0 0 0 0
-50--Celebration_Or_Party/50_Celebration_Or_Party_birthdayparty_50_196.jpg
+50--Celebration_Or_Party/50_Celebration_Or_Party_birthdayparty_50_196.jpeg
 1
 187 337 333 408 0 0 0 0 0 0
 50--Celebration_Or_Party/50_Celebration_Or_Party_houseparty_50_165.jpg
@@ -13283,7 +13283,7 @@
 596 220 96 158 1 0 0 0 0 0
 696 198 102 176 1 0 0 0 0 0
 938 438 66 152 1 0 0 0 0 0
-50--Celebration_Or_Party/50_Celebration_Or_Party_houseparty_50_649.jpg
+50--Celebration_Or_Party/50_Celebration_Or_Party_houseparty_50_649.jpeg
 1
 412 133 175 261 0 0 0 0 0 0
 50--Celebration_Or_Party/50_Celebration_Or_Party_houseparty_50_720.jpg
@@ -13405,7 +13405,7 @@
 428 45 55 71 1 0 0 0 0 0
 283 46 49 66 1 0 0 0 0 0
 93 48 53 64 1 0 0 0 0 0
-51--Dresses/51_Dresses_wearingdress_51_1031.jpg
+51--Dresses/51_Dresses_wearingdress_51_1031.jpeg
 1
 440 112 168 236 0 0 0 0 0 0
 51--Dresses/51_Dresses_wearingdress_51_904.jpg
@@ -14973,7 +14973,7 @@
 2
 413 247 87 102 1 0 0 0 0 0
 804 259 93 111 1 0 0 0 0 0
-6--Funeral/6_Funeral_Funeral_6_618.jpg
+6--Funeral/6_Funeral_Funeral_6_618.jpeg
 13
 530 1181 94 123 0 0 0 0 0 0
 543 2046 234 190 0 0 0 0 0 0

@@ -48,7 +48,9 @@ post_install do |installer|
         'PERMISSION_PHOTOS=1',
         'PERMISSION_CAMERA=1'
       ]
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'i386'
+      config.build_settings['ONLY_ACTIVE_ARCH'] = 'YES'
+      config.build_settings['VALID_ARCHS'] = 'arm64 arm64e'
     end
   end
 end
-
